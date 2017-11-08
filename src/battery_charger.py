@@ -1,5 +1,8 @@
 # All the imports....
 import argparse
+from power import Hantek_PPS2116A
+from timeit import default_timer
+
 
 
 # Main
@@ -58,10 +61,38 @@ if __name__ == '__main__':
     print(' ------------------------------------------------')
     print('| Floating Time: %2.2f \t\t\t\t |' % floating_time)
     print(' ------------------------------------------------')
+
+    ps = Hantek_PPS2116A() 
+
     # Start Idle but configures everithung to go Bulk
-     
+    status = 'Bulk'
+    setup_power_sypply(power_supply=ps, voltage=bulk_voltage, current=bulk_current, turn='on')
+    start = default_timer()
 
     while(status != 'Finish'):
         if status == 'Bulk':
-        
+            measured_voltage = ps.read_measured_voltage()
+            if measured_voltage == absorption_voltage:
+                status = 'Absorption'
+                setup_power_sypply(power_supply=ps, voltage=absorption_voltage, current=absorption_current, turn='on')
 
+        if status == 'Absorption':
+            measured_current = ps.read_measured_current()
+            if measured_current == absorption_current:
+                status = 'Floating'
+                setup_power_sypply(power_supply=ps, voltage=floating_voltage, current=floating_current, turn='on')
+
+        if status == 'Floating':
+            measured_current = ps.read_measured_current()
+            if (default_timer() - start)*60 > floating_time:
+                status = 'Finish'
+                setup_power_sypply(power_supply=ps, voltage=0, current=0, turn='off')
+
+        else:
+            print('I got lost in the states... please, review the code! ;-)')
+            quit()
+
+        time.sleep(1)
+
+    print('Charge complete...')
+    quit()
