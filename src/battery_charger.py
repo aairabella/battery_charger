@@ -76,13 +76,13 @@ if __name__ == '__main__':
                 status = 'Absorption'
                 setup_power_sypply(power_supply=ps, voltage=absorption_voltage, current=absorption_current, turn='on')
 
-        if status == 'Absorption':
+        elif status == 'Absorption':
             measured_current = ps.read_measured_current()
             if measured_current == absorption_current:
                 status = 'Floating'
                 setup_power_sypply(power_supply=ps, voltage=floating_voltage, current=floating_current, turn='on')
 
-        if status == 'Floating':
+        elif status == 'Floating':
             measured_current = ps.read_measured_current()
             if (default_timer() - start)*60 > floating_time:
                 status = 'Finish'
